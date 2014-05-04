@@ -1,4 +1,4 @@
-package zkutils.backup;
+package zkutils.masterslaves;
 
 public interface PointService {
 	String getServiceName();

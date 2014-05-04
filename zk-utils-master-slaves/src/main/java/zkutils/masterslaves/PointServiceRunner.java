@@ -1,4 +1,4 @@
-package zkutils.backup;
+package zkutils.masterslaves;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.zookeeper.KeeperException;
-
-import zkutils.common.Utils;
 
 public class PointServiceRunner {
 

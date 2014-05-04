@@ -1,4 +1,4 @@
-package zkutils.backup;
+package zkutils.masterslaves;
 
 public class TestService implements PointService {
 	
