@@ -10,3 +10,5 @@ Usually we need to wrap these APIs for high level applications.
 
 zk-utils is designed as a "middle level" between Apache ZooKeeper APIs and high level
 applications by providing easy-to-use and reliable APIs for different use scenarios.
+
+> **Note:** Currently zk-utils only provides Java APIs though Apache ZooKeeper provides both Java and C APIs.
