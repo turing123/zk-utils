@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import org.apache.zookeeper.KeeperException;
 
-public class PointServiceRunner {
+public class ServiceRunner {
 
 	public static void main(String[] args) {
 		String configPath = "";
@@ -21,7 +21,7 @@ public class PointServiceRunner {
 		Properties config = new Properties();
 		try {
 			config.load(new FileInputStream(new File(configPath)));
-			PointServiceManager manager = new PointServiceManager(config);
+			ServiceManager manager = new ServiceManager(config);
 			manager.init();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

@@ -1,6 +1,6 @@
 package zkutils.masterslaves;
 
-public class TestService implements PointService {
+public class TestService implements Service {
 	
 	public String getServiceName() {
 		return "TestService";

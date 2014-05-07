@@ -1,6 +1,6 @@
 package zkutils.masterslaves;
 
-public interface PointService {
+public interface Service {
 	String getServiceName();
 	void startup();
 	void run();

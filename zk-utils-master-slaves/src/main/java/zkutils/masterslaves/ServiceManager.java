@@ -21,23 +21,23 @@ import org.apache.zookeeper.ZooKeeper;
 
 import zkutils.common.ZKPool;
 
-public class PointServiceManager {
+public class ServiceManager {
 	private Properties config;
 	private ZKPool zkPool;
-	private PointService pointService;
+	private Service service;
 	private ZooKeeper zk;
 	private String pointServicePath;
 	private final ReentrantLock stateLock = new ReentrantLock();
 	private boolean isMaster;
 	
-	public PointServiceManager(Properties config) {
+	public ServiceManager(Properties config) {
 		this.config = config;
 	}
 	
 	public void init() throws IOException, KeeperException, InterruptedException {
 		initZKPool();
 		initService();
-		if (pointService == null) {
+		if (service == null) {
 			return;
 		}
 		
@@ -69,8 +69,8 @@ public class PointServiceManager {
 			
 			Class<?> serviceClazz = Class.forName(serviceClass, true, loader);
 			Constructor<?> constructor = serviceClazz.getConstructor();
-			pointService = (PointService) constructor.newInstance();
-			pointService.startup();
+			service = (Service) constructor.newInstance();
+			service.startup();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return;
@@ -103,28 +103,28 @@ public class PointServiceManager {
 	private void initZK() throws IOException, KeeperException, InterruptedException {
 		zk = new ZooKeeper(zkPool.getRandoemConnectString(),
 				2000, null);
-		String serviceDirPath = "/" + pointService.getServiceName();
+		String serviceDirPath = "/" + service.getServiceName();
 		if (zk.exists(serviceDirPath, null) == null) {
 			zk.create(serviceDirPath, "".getBytes(), Ids.OPEN_ACL_UNSAFE,
 					CreateMode.PERSISTENT);
 		} 
 		
-		String pointServicePathPrefix = serviceDirPath + "/" + pointService.getServiceName();
+		String pointServicePathPrefix = serviceDirPath + "/" + service.getServiceName();
 		pointServicePath = zk.create(pointServicePathPrefix, "".getBytes(), Ids.OPEN_ACL_UNSAFE,
 				CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.out.println("My path: " + pointServicePath);	
 	}
 	
 	private void runService() throws KeeperException, InterruptedException {
-		String serviceDirPath = "/" + pointService.getServiceName();
-		String pointServicePathPrefix = serviceDirPath + "/" + pointService.getServiceName();
+		String serviceDirPath = "/" + service.getServiceName();
+		String pointServicePathPrefix = serviceDirPath + "/" + service.getServiceName();
 		
 		long mySequenceNumber = getSequenceNumber(pointServicePath, pointServicePathPrefix);		
 		
 		List<String> childrenPaths = null;
 		childrenPaths = zk.getChildren(serviceDirPath, false);
 		
-		long[] sortedChildrenSequenceNumbers = getSortedSequenceNumbers(childrenPaths, pointService.getServiceName());
+		long[] sortedChildrenSequenceNumbers = getSortedSequenceNumbers(childrenPaths, service.getServiceName());
 		if (mySequenceNumber == sortedChildrenSequenceNumbers[0]) {
 			runAsMaster();
 		} else {
@@ -138,7 +138,7 @@ public class PointServiceManager {
 			
 			String pathToWatch = "";
 			for (String path : childrenPaths) {
-				if (getSequenceNumber(path, pointService.getServiceName()) == sequenceNumberToWatch) {
+				if (getSequenceNumber(path, service.getServiceName()) == sequenceNumberToWatch) {
 					pathToWatch = path;
 					break;
 				}
@@ -150,7 +150,7 @@ public class PointServiceManager {
 	private void runAsMaster() {
 		System.out.println("Running as master.");
 		isMaster = true;
-		pointService.run();
+		service.run();
 	}
 	
 	private void watchAsSlave(final String pathToWatch) throws KeeperException, InterruptedException {
